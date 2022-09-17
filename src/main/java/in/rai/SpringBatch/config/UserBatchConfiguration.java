@@ -6,26 +6,24 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.data.builder.MongoItemWriterBuilder;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import in.rai.SpringBatch.domain.User;
-import in.rai.SpringBatch.listener.JobCompletionNotificationListener;
+import in.rai.SpringBatch.listener.JobCompletionNotificationListenerOfUser;
 import in.rai.SpringBatch.model.UserDetail;
 import in.rai.SpringBatch.processor.UserItemProcessor;
+import in.rai.SpringBatch.reader.UserItemReader;
 
 
 @Configuration
 @EnableBatchProcessing
-public class BatchConfiguration{
+public class UserBatchConfiguration{
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
     @Autowired
@@ -33,44 +31,35 @@ public class BatchConfiguration{
 
 
     @Bean
-    public FlatFileItemReader<UserDetail> reader() {
-        return new FlatFileItemReaderBuilder<UserDetail>().name("userItemReader")
-                .resource(new ClassPathResource("user-sample-data.csv")).delimited()
-                .names(new String[] {"email", "firstName", "lastName", "mobileNumber"})
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<UserDetail>() {
-                    {
-                        setTargetType(UserDetail.class);
-                    }
-                }).build();
+    public ItemReader<UserDetail> userItemReader() {
+        return new UserItemReader();
     }
 
     @Bean
-    public MongoItemWriter<User> writer(MongoTemplate mongoTemplate) {
+    public MongoItemWriter<User> userWriter(MongoTemplate mongoTemplate) {
         return new MongoItemWriterBuilder<User>().template(mongoTemplate).collection("user")
                 .build();
     }
 
-
     @Bean
-    public UserItemProcessor processor() {
+    public UserItemProcessor userProcessor() {
         return new UserItemProcessor();
     }
 
-
     @Bean
-    public Step step1(FlatFileItemReader<UserDetail> itemReader, MongoItemWriter<User> itemWriter)
+    public Step userStep1(ItemReader<UserDetail> itemReader, MongoItemWriter<User> itemWriter)
             throws Exception {
 
-        return this.stepBuilderFactory.get("step1").<UserDetail, User>chunk(5).reader(itemReader)
-                .processor(processor()).writer(itemWriter).build();
+        return this.stepBuilderFactory.get("Userstep1").<UserDetail, User>chunk(5).reader(itemReader)
+                .processor(userProcessor()).writer(itemWriter).build();
     }
 
     @Bean
-    public Job updateUserJob(JobCompletionNotificationListener listener, Step step1)
+    public Job updateUserJob(JobCompletionNotificationListenerOfUser listener, Step userStep1)
             throws Exception {
 
         return this.jobBuilderFactory.get("updateUserJob").incrementer(new RunIdIncrementer())
-                .listener(listener).start(step1).build();
+                .listener(listener).start(userStep1).build();
     }
 
 }
