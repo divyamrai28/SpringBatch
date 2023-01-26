@@ -12,7 +12,6 @@ public class PrimeUserDetail {
 	public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -20,7 +19,6 @@ public class PrimeUserDetail {
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -28,7 +26,6 @@ public class PrimeUserDetail {
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -36,7 +33,6 @@ public class PrimeUserDetail {
     public String getMobileNumber() {
         return mobileNumber;
     }
-
     public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
@@ -44,7 +40,6 @@ public class PrimeUserDetail {
     public int getAmountPaid() {
 		return amountPaid;
 	}
-
 	public void setAmountPaid(int amountPaid) {
 		this.amountPaid = amountPaid;
 	}
