@@ -17,7 +17,6 @@ public class JobCompletionNotificationListenerOfPrimeUser extends JobExecutionLi
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             log.info("!!! JOB FINISHED for Prime Users! Time to verify the results");
-
         }
     }
 }
